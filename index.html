@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RPG Item Manager</title>
+    <title>脆脆食譜</title>
+    
+    <!-- 
+        =======================================================================
+        🎒 APP 圖示設定 (已選擇：冒險背包 Pixel Art)
+        =======================================================================
+    -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Cpath fill='%238B4513' d='M6 5h12v15H6z'/%3E%3Cpath fill='%23A0522D' d='M4 8h2v12H4zM18 8h2v12h-2z'/%3E%3Cpath fill='%23CD853F' d='M6 5h12v7H6z'/%3E%3Cpath fill='%23FFD700' d='M11 10h2v2h-2z'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Crect width='24' height='24' fill='%23fdf6e3'/%3E%3Cpath fill='%238B4513' d='M6 5h12v15H6z'/%3E%3Cpath fill='%23A0522D' d='M4 8h2v12H4zM18 8h2v12h-2z'/%3E%3Cpath fill='%23CD853F' d='M6 5h12v7H6z'/%3E%3Cpath fill='%23FFD700' d='M11 10h2v2h-2z'/%3E%3C/svg%3E">
     
     <!-- React & Babel -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -13,7 +21,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Crypto JS  -->
+    <!-- Crypto JS (用於解密) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     
     <!-- Google Fonts -->
@@ -26,10 +34,19 @@
             background-image: radial-gradient(#e2d5b5 1px, transparent 1px);
             background-size: 20px 20px;
             color: #4a3b32;
-            overflow: hidden;
+            /* 全域滾動設定：手機允許，電腦鎖定 */
+            overflow-y: auto; 
+            overflow-x: hidden;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
+        
+        @media (min-width: 768px) {
+            body {
+                overflow: hidden; /* 電腦版鎖定高度 */
+            }
+        }
+
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -72,19 +89,20 @@
 
     <!-- ================================================================================== -->
     <!-- 🔒 資料貼上區 (DATA ZONE)                                                         -->
+    <!-- 請使用 admin.html 產生加密亂碼，並取代下方引號內的內容。                               -->
     <!-- ================================================================================== -->
 <script id="game-data">
-  window.ENCRYPTED_GAME_DATA = "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";
+  window.ENCRYPTED_GAME_DATA = "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";
 </script>
     <!-- ================================================================================== -->
 
     <script type="text/babel">
         const { useState, useMemo, useEffect } = React;
 
-        // --- 內建密鑰 (請確保設定的一致) ---
+        // --- 內建密鑰 ---
         const SECRET_KEY = "RPG_MASTER_KEY_2025";
 
-        // --- 預設資料  ---
+        // --- 預設資料 (已清空) ---
         const DEFAULT_CSV = ``;
 
         // --- SVG 圖示 ---
@@ -139,24 +157,26 @@
                     hasStat = true;
                 }
             });
-            // 嚴格過濾：必須有數值 或 包含"機率"等關鍵字才顯示
             if (!hasStat && !buffString.includes('機率')) return null; 
             return stats;
         };
 
         // --- UI 組件 ---
-        const ItemCard = ({ title, items, selected, onSelect, icon: Icon }) => (
-            <div className="rpg-card flex flex-col h-full overflow-hidden">
-                <div className="rpg-card-header p-3 flex items-center justify-between text-sm">
+        const ItemCard = ({ title, items, selected, onSelect, icon: Icon, mobileHeight = "h-auto" }) => (
+            <div className="rpg-card flex flex-col md:h-full">
+                <div className="rpg-card-header p-3 flex items-center justify-between text-sm sticky top-0 z-10 bg-[#f3edd6]">
                     <div className="flex items-center gap-2">
                         {Icon && <Icon />}
                         <span>{title}</span>
                     </div>
                     <span className="text-xs bg-[#dcd0b3] px-2 py-0.5 rounded-full text-[#5c4a3d]">{items.length}</span>
                 </div>
-                <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-[#fdfaf4]">
+                {/* 手機版: 使用 mobileHeight (如 h-[480px]) 並加上 overflow-y-auto 讓框框內捲動 
+                    電腦版: flex-1 自動填滿 + 內部捲動
+                */}
+                <div className={`md:flex-1 md:h-auto ${mobileHeight} overflow-y-auto p-2 space-y-2 bg-[#fdfaf4]`}>
                     {items.length === 0 ? (
-                        <div className="h-full flex items-center justify-center text-[#a69076] text-xs italic opacity-60">無可用項目</div>
+                        <div className="h-full min-h-[50px] flex items-center justify-center text-[#a69076] text-xs italic opacity-60">無可用項目</div>
                     ) : (
                         items.map((item, idx) => {
                             const isSelected = selected && selected.物品 === item.物品;
@@ -182,34 +202,24 @@
             
             const JOBS = ['廚師', '漁夫', '獵人', '農夫', '牧場主', '木匠', '伐木工', '鐵匠', '礦工', '遊民'];
 
-            // 1. 初始化資料 (只讀加密，不讀預設)
             useEffect(() => {
-                // 如果沒有加密數據，顯示提示
                 if (!window.ENCRYPTED_GAME_DATA) {
                     setErrorMsg("⚠️ 尚未載入數據：請使用 admin.html 產生加密碼並貼入 index.html。");
                     return;
                 }
-
                 try {
                     const bytes = CryptoJS.AES.decrypt(window.ENCRYPTED_GAME_DATA, SECRET_KEY);
                     const originalText = bytes.toString(CryptoJS.enc.Utf8);
-                    
-                    if (originalText) {
-                        setParsedItems(parseCSV(originalText));
-                    } else {
-                        throw new Error("空字串");
-                    }
+                    if (originalText) setParsedItems(parseCSV(originalText));
+                    else throw new Error("空字串");
                 } catch (e) {
                     console.error(e);
-                    // 只有當真的有加密數據但解開失敗時才報錯
                     setErrorMsg("❌ 資料解密失敗：密鑰不正確或是資料格式錯誤。");
                 }
             }, []);
 
-            // 2. 篩選邏輯
             const filteredItems = useMemo(() => {
                 const result = { food: [], tool: [], equip1: [], equip2: [] };
-                
                 const isJobMatch = (jobStr) => {
                     if (!jobStr) return false;
                     if (jobStr.includes('全職業')) return true;
@@ -217,10 +227,8 @@
                 };
 
                 parsedItems.forEach(item => {
-                    // 嚴格過濾
                     const type = item.種類 ? item.種類.trim() : "";
                     if (!type) return; 
-
                     if (isJobMatch(item.適用職業) && parseBuffs(item.增益效果)) {
                         if (type === '食物') result.food.push(item);
                         else if (type === '工具') result.tool.push(item);
@@ -231,7 +239,6 @@
                 return result;
             }, [parsedItems, selectedJob]);
 
-            // 3. 數值計算
             const stats = useMemo(() => {
                 const t = { production: 0, gathering: 0, crafting: 0, exp: 0 };
                 Object.values(loadout).forEach(i => {
@@ -253,41 +260,46 @@
                 }));
             };
 
-            // 如果沒有資料，顯示全版提示
+            const hasSelectedItems = Object.values(loadout).some(v => v);
+
             if (errorMsg || parsedItems.length === 0) {
                 return (
                     <div className="h-screen w-full flex items-center justify-center bg-[#fdf6e3] flex-col p-8 text-center">
                         <div className="text-4xl mb-4">🛡️</div>
                         <h1 className="text-xl font-black text-[#785c3e] mb-2">RPG Item Manager</h1>
-                        <p className="text-red-500 font-bold bg-red-100 px-4 py-2 rounded border border-red-200">
-                            {errorMsg || "資料庫是空的。"}
-                        </p>
+                        <p className="text-red-500 font-bold bg-red-100 px-4 py-2 rounded border border-red-200">{errorMsg || "資料庫是空的。"}</p>
                     </div>
                 );
             }
 
             return (
-                <div className="h-screen flex flex-col">
-                    {/* 上方：職業選擇 */}
-                    <header className="bg-[#fdf6e3] border-b-2 border-[#e6dbbf] shadow-sm relative z-20">
+                <div className="flex flex-col min-h-screen md:h-screen">
+                    {/* Header */}
+                    <header className="bg-[#fdf6e3] border-b-2 border-[#e6dbbf] shadow-sm relative z-20 shrink-0 sticky top-0">
+                        {/* 第一行：職業選擇 */}
                         <div className="w-full overflow-x-auto whitespace-nowrap p-3 scrollbar-hide flex gap-2">
-                            <span className="text-xs font-bold text-[#a69076] px-2 self-center sticky left-0 bg-[#fdf6e3]">職業</span>
+                            <span className="text-xs font-bold text-[#a69076] px-2 self-center sticky left-0 bg-[#fdf6e3] z-10">職業</span>
                             {JOBS.map(job => (
-                                <button
-                                    key={job}
-                                    onClick={() => setSelectedJob(job)}
-                                    className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all border ${
-                                        selectedJob === job 
-                                        ? 'job-btn-active' 
-                                        : 'job-btn-inactive hover:bg-gray-50'
-                                    }`}
-                                >
-                                    {job}
-                                </button>
+                                <button key={job} onClick={() => setSelectedJob(job)} className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all border ${selectedJob === job ? 'job-btn-active border-purple-600' : 'job-btn-inactive hover:bg-gray-50'}`}>{job}</button>
                             ))}
                         </div>
-                        {/* 右上角已裝備狀態 */}
-                        <div className="absolute top-3 right-3 flex gap-2">
+
+                        {/* 第二行：手機版已選裝備 (橫向捲動，不擋住職業選擇) */}
+                        {hasSelectedItems && (
+                            <div className="md:hidden w-full overflow-x-auto whitespace-nowrap p-2 bg-[#fffef9] border-t border-[#e6dbbf] flex gap-2 shadow-inner items-center">
+                                <span className="text-[10px] font-bold text-[#a69076] px-1 sticky left-0 bg-[#fffef9] z-10">已選:</span>
+                                {Object.entries(loadout).map(([k, v]) => v && (
+                                    <button key={k} onClick={() => handleSelect(k, v)} className="flex items-center gap-1 bg-white border border-amber-300 rounded px-2 py-1 text-xs text-amber-900 shadow-sm active:bg-red-50 transition-colors group flex-shrink-0">
+                                        {k==='food'?<Icons.Food/>:k==='tool'?<Icons.Tool/>:<Icons.Shield/>}
+                                        <span className="max-w-[100px] truncate font-bold">{v.物品}</span>
+                                        <Icons.X />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* 電腦版已選裝備 (右上懸浮) */}
+                        <div className="hidden md:flex absolute top-3 right-3 gap-2">
                             {Object.entries(loadout).map(([k, v]) => v && (
                                 <button key={k} onClick={() => handleSelect(k, v)} className="flex items-center gap-1 bg-white border border-amber-300 rounded px-2 py-1 text-xs text-amber-900 shadow-sm hover:bg-red-50 transition-colors group">
                                     {k==='food'?<Icons.Food/>:k==='tool'?<Icons.Tool/>:<Icons.Shield/>}
@@ -298,21 +310,57 @@
                         </div>
                     </header>
 
-                    {/* 中間：三欄式 */}
-                    <main className="flex-1 overflow-hidden p-4 grid grid-cols-1 md:grid-cols-12 gap-4">
-                        <div className="col-span-1 md:col-span-3 h-full overflow-hidden">
-                            <ItemCard title="食物" items={filteredItems.food} selected={loadout.food} onSelect={(i) => handleSelect('food', i)} icon={Icons.Food} />
+                    {/* 主內容 */}
+                    <main className="flex-1 p-4 grid grid-cols-1 md:grid-cols-12 gap-4">
+                        
+                        {/* 左：食物 (手機版高度約 8 個項目 = 480px) */}
+                        <div className="col-span-1 md:col-span-3">
+                            <ItemCard 
+                                title="食物" 
+                                items={filteredItems.food} 
+                                selected={loadout.food} 
+                                onSelect={(i) => handleSelect('food', i)} 
+                                icon={Icons.Food} 
+                                mobileHeight="h-[480px]" 
+                            />
                         </div>
-                        <div className="col-span-1 md:col-span-6 h-full flex flex-col gap-4 overflow-hidden">
-                            <div className="flex-1 min-h-0">
-                                <ItemCard title="工具" items={filteredItems.tool} selected={loadout.tool} onSelect={(i) => handleSelect('tool', i)} icon={Icons.Tool} />
+
+                        {/* 中：工具 & 裝備 */}
+                        <div className="col-span-1 md:col-span-6 flex flex-col gap-4 md:h-full md:overflow-hidden">
+                            <div className="md:flex-1 md:min-h-0">
+                                {/* 工具：手機版高度約 3 個項目 = 200px */}
+                                <ItemCard 
+                                    title="工具" 
+                                    items={filteredItems.tool} 
+                                    selected={loadout.tool} 
+                                    onSelect={(i) => handleSelect('tool', i)} 
+                                    icon={Icons.Tool} 
+                                    mobileHeight="h-[200px]" 
+                                />
                             </div>
-                            <div className="flex-1 min-h-0 grid grid-cols-2 gap-4">
-                                <ItemCard title="裝備 I" items={filteredItems.equip1} selected={loadout.equip1} onSelect={(i) => handleSelect('equip1', i)} icon={Icons.Shield} />
-                                <ItemCard title="裝備 II" items={filteredItems.equip2} selected={loadout.equip2} onSelect={(i) => handleSelect('equip2', i)} icon={Icons.Shield} />
+                            <div className="md:flex-1 md:min-h-0 grid grid-cols-2 gap-4">
+                                {/* 裝備：手機版高度約 3 個項目 = 200px */}
+                                <ItemCard 
+                                    title="裝備 I" 
+                                    items={filteredItems.equip1} 
+                                    selected={loadout.equip1} 
+                                    onSelect={(i) => handleSelect('equip1', i)} 
+                                    icon={Icons.Shield} 
+                                    mobileHeight="h-[200px]" 
+                                />
+                                <ItemCard 
+                                    title="裝備 II" 
+                                    items={filteredItems.equip2} 
+                                    selected={loadout.equip2} 
+                                    onSelect={(i) => handleSelect('equip2', i)} 
+                                    icon={Icons.Shield} 
+                                    mobileHeight="h-[200px]" 
+                                />
                             </div>
                         </div>
-                        <div className="col-span-1 md:col-span-3 h-full overflow-y-auto">
+
+                        {/* 右：數值 */}
+                        <div className="col-span-1 md:col-span-3 md:h-full md:overflow-y-auto">
                             <div className="rpg-card p-4 sticky top-0">
                                 <h3 className="text-center font-black text-[#785c3e] border-b-2 border-[#e6dbbf] pb-2 mb-4">能力加成</h3>
                                 <div className="space-y-3">
@@ -339,5 +387,6 @@
         root.render(<App />);
     </script>
 </body>
-
 </html>
+
+
