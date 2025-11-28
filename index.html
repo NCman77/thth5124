@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RPG Item Manager</title>
+    
+    <!-- React & Babel -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Crypto JS (用於解密) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fdf6e3; /* 羊皮紙色 */
+            background-image: radial-gradient(#e2d5b5 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #4a3b32;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .rpg-card {
+            background: #fffef9;
+            border: 2px solid #e6dbbf;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(120, 100, 80, 0.1);
+        }
+        .rpg-card-header {
+            background: #f3edd6;
+            border-bottom: 2px solid #e6dbbf;
+            color: #785c3e;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+        }
+        .job-btn-active {
+            background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+            color: white;
+            border: 1px solid #6d28d9;
+            box-shadow: 0 4px 0 #5b21b6;
+            transform: translateY(-2px);
+        }
+        .job-btn-inactive {
+            background: white;
+            color: #78716c;
+            border: 1px solid #d6d3d1;
+            box-shadow: 0 2px 0 #d6d3d1;
+        }
+        .job-btn-inactive:active {
+            box-shadow: none;
+            transform: translateY(2px);
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <!-- ================================================================================== -->
+    <!-- 🔒 資料貼上區 (DATA ZONE)                                                         -->
+    <!-- 請使用 admin.html 產生加密亂碼，並取代下方引號內的內容。                               -->
+    <!-- ================================================================================== -->
+<script id="game-data">
+  window.ENCRYPTED_GAME_DATA = "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";
+</script>
+    <!-- ================================================================================== -->
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect } = React;
+
+        // --- 內建密鑰 (請確保與 admin.html 設定的一致) ---
+        const SECRET_KEY = "RPG_MASTER_KEY_2025";
+
+        // --- 預設資料 (已清空，確保F12看不到任何資料) ---
+        const DEFAULT_CSV = ``;
+
+        // --- SVG 圖示 ---
+        const Icons = {
+            Food: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.5 2.5a4.5 4.5 0 0 0-2.3 8.8l-3.2 3.2a2 2 0 1 0 2.8 2.8l3.2-3.2A4.5 4.5 0 0 0 10.5 2.5Z"/><path d="M13.5 13.5 21 21"/></svg>,
+            Tool: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>,
+            Shield: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+            X: () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
+            Zap: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+            Tree: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V6"/><path d="M5 19h14"/><path d="M12 2 3 19h18L12 2Z"/></svg>,
+            Hammer: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25V2.46V2a2 2 0 0 0-2-2h-3c-.6 0-1.1.2-1.5.6L3 11.84c-.6.6-.9 1.45-.9 2.3v6.86c0 .55.45 1 1 1h6.86c.86 0 1.7-.3 2.3-.9l1.25-1.25a7.7 7.7 0 0 0 7.4-8.15z"/></svg>,
+            Star: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        };
+
+        // --- 邏輯函數 ---
+        const parseCSV = (text) => {
+            const lines = text.trim().split(/\r?\n/);
+            if (lines.length === 0) return [];
+            const delimiter = lines[0].includes('\t') ? '\t' : ',';
+            const headers = lines[0].split(delimiter).map(h => h.trim());
+            return lines.slice(1).map(line => {
+                let values = [];
+                if (delimiter === ',') {
+                    values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                } else {
+                    values = line.split(delimiter);
+                }
+                const entry = {};
+                headers.forEach((header, index) => {
+                    let val = values[index] ? values[index].trim() : '';
+                    val = val.replace(/^"|"$/g, '').replace(/""/g, '"');
+                    entry[header] = val;
+                });
+                return entry;
+            });
+        };
+
+        const parseBuffs = (buffString) => {
+            if (!buffString) return null;
+            const stats = { production: 0, gathering: 0, crafting: 0, exp: 0, text: buffString };
+            const patterns = [
+                { key: 'production', regex: /生產加速\s*\+?(\d+)%/ },
+                { key: 'gathering', regex: /採集加速\s*\+?(\d+)%/ },
+                { key: 'crafting', regex: /製作加速\s*\+?(\d+)%/ },
+                { key: 'exp', regex: /經驗加成\s*\+?(\d+)%/ },
+            ];
+            let hasStat = false;
+            patterns.forEach(p => {
+                const match = buffString.match(p.regex);
+                if (match) {
+                    stats[p.key] = parseInt(match[1], 10);
+                    hasStat = true;
+                }
+            });
+            // 嚴格過濾：必須有數值 或 包含"機率"等關鍵字才顯示
+            if (!hasStat && !buffString.includes('機率')) return null; 
+            return stats;
+        };
+
+        // --- UI 組件 ---
+        const ItemCard = ({ title, items, selected, onSelect, icon: Icon }) => (
+            <div className="rpg-card flex flex-col h-full overflow-hidden">
+                <div className="rpg-card-header p-3 flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                        {Icon && <Icon />}
+                        <span>{title}</span>
+                    </div>
+                    <span className="text-xs bg-[#dcd0b3] px-2 py-0.5 rounded-full text-[#5c4a3d]">{items.length}</span>
+                </div>
+                <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-[#fdfaf4]">
+                    {items.length === 0 ? (
+                        <div className="h-full flex items-center justify-center text-[#a69076] text-xs italic opacity-60">無可用項目</div>
+                    ) : (
+                        items.map((item, idx) => {
+                            const isSelected = selected && selected.物品 === item.物品;
+                            return (
+                                <button key={idx} onClick={() => onSelect(item)} className={`w-full text-left p-3 rounded-lg border transition-all relative group ${isSelected ? 'bg-purple-50 border-purple-400 shadow-sm' : 'bg-white border-[#efe5d0] hover:border-amber-300 hover:bg-[#fffef0]'}`}>
+                                    <div className={`font-bold text-sm ${isSelected ? 'text-purple-900' : 'text-[#5c4a3d]'}`}>{item.物品}</div>
+                                    <div className="text-[10px] text-[#8c7b6c] mt-1 truncate">{item.增益效果}</div>
+                                    {isSelected && <div className="absolute top-2 right-2 text-purple-400"><Icons.X /></div>}
+                                </button>
+                            )
+                        })
+                    )}
+                </div>
+            </div>
+        );
+
+        // --- 主應用程式 ---
+        function App() {
+            const [parsedItems, setParsedItems] = useState([]);
+            const [selectedJob, setSelectedJob] = useState('廚師');
+            const [loadout, setLoadout] = useState({ food: null, tool: null, equip1: null, equip2: null });
+            const [errorMsg, setErrorMsg] = useState("");
+            
+            const JOBS = ['廚師', '漁夫', '獵人', '農夫', '牧場主', '木匠', '伐木工', '鐵匠', '礦工', '遊民'];
+
+            // 1. 初始化資料 (只讀加密，不讀預設)
+            useEffect(() => {
+                // 如果沒有加密數據，顯示提示
+                if (!window.ENCRYPTED_GAME_DATA) {
+                    setErrorMsg("⚠️ 尚未載入數據：請使用 admin.html 產生加密碼並貼入 index.html。");
+                    return;
+                }
+
+                try {
+                    const bytes = CryptoJS.AES.decrypt(window.ENCRYPTED_GAME_DATA, SECRET_KEY);
+                    const originalText = bytes.toString(CryptoJS.enc.Utf8);
+                    
+                    if (originalText) {
+                        setParsedItems(parseCSV(originalText));
+                    } else {
+                        throw new Error("空字串");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    // 只有當真的有加密數據但解開失敗時才報錯
+                    setErrorMsg("❌ 資料解密失敗：密鑰不正確或是資料格式錯誤。");
+                }
+            }, []);
+
+            // 2. 篩選邏輯
+            const filteredItems = useMemo(() => {
+                const result = { food: [], tool: [], equip1: [], equip2: [] };
+                
+                const isJobMatch = (jobStr) => {
+                    if (!jobStr) return false;
+                    if (jobStr.includes('全職業')) return true;
+                    return jobStr.includes(selectedJob);
+                };
+
+                parsedItems.forEach(item => {
+                    // 嚴格過濾：F欄(種類)必須有值
+                    const type = item.種類 ? item.種類.trim() : "";
+                    if (!type) return; 
+
+                    if (isJobMatch(item.適用職業) && parseBuffs(item.增益效果)) {
+                        if (type === '食物') result.food.push(item);
+                        else if (type === '工具') result.tool.push(item);
+                        else if (type === '裝備') result.equip1.push(item);
+                        else if (type === '裝備2') result.equip2.push(item);
+                    }
+                });
+                return result;
+            }, [parsedItems, selectedJob]);
+
+            // 3. 數值計算
+            const stats = useMemo(() => {
+                const t = { production: 0, gathering: 0, crafting: 0, exp: 0 };
+                Object.values(loadout).forEach(i => {
+                    const s = parseBuffs(i?.增益效果);
+                    if (s) {
+                        t.production += s.production || 0;
+                        t.gathering += s.gathering || 0;
+                        t.crafting += s.crafting || 0;
+                        t.exp += s.exp || 0;
+                    }
+                });
+                return t;
+            }, [loadout]);
+
+            const handleSelect = (type, item) => {
+                setLoadout(prev => ({
+                    ...prev,
+                    [type]: (prev[type]?.物品 === item.物品) ? null : item
+                }));
+            };
+
+            // 如果沒有資料，顯示全版提示
+            if (errorMsg || parsedItems.length === 0) {
+                return (
+                    <div className="h-screen w-full flex items-center justify-center bg-[#fdf6e3] flex-col p-8 text-center">
+                        <div className="text-4xl mb-4">🛡️</div>
+                        <h1 className="text-xl font-black text-[#785c3e] mb-2">RPG Item Manager</h1>
+                        <p className="text-red-500 font-bold bg-red-100 px-4 py-2 rounded border border-red-200">
+                            {errorMsg || "資料庫是空的。"}
+                        </p>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="h-screen flex flex-col">
+                    {/* 上方：職業選擇 */}
+                    <header className="bg-[#fdf6e3] border-b-2 border-[#e6dbbf] shadow-sm relative z-20">
+                        <div className="w-full overflow-x-auto whitespace-nowrap p-3 scrollbar-hide flex gap-2">
+                            <span className="text-xs font-bold text-[#a69076] px-2 self-center sticky left-0 bg-[#fdf6e3]">職業</span>
+                            {JOBS.map(job => (
+                                <button
+                                    key={job}
+                                    onClick={() => setSelectedJob(job)}
+                                    className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all border ${
+                                        selectedJob === job 
+                                        ? 'job-btn-active' 
+                                        : 'job-btn-inactive hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {job}
+                                </button>
+                            ))}
+                        </div>
+                        {/* 右上角已裝備狀態 */}
+                        <div className="absolute top-3 right-3 flex gap-2">
+                            {Object.entries(loadout).map(([k, v]) => v && (
+                                <button key={k} onClick={() => handleSelect(k, v)} className="flex items-center gap-1 bg-white border border-amber-300 rounded px-2 py-1 text-xs text-amber-900 shadow-sm hover:bg-red-50 transition-colors group">
+                                    {k==='food'?<Icons.Food/>:k==='tool'?<Icons.Tool/>:<Icons.Shield/>}
+                                    <span className="max-w-[60px] truncate">{v.物品}</span>
+                                    <span className="text-red-400 group-hover:block hidden"><Icons.X/></span>
+                                </button>
+                            ))}
+                        </div>
+                    </header>
+
+                    {/* 中間：三欄式 */}
+                    <main className="flex-1 overflow-hidden p-4 grid grid-cols-1 md:grid-cols-12 gap-4">
+                        <div className="col-span-1 md:col-span-3 h-full overflow-hidden">
+                            <ItemCard title="食物" items={filteredItems.food} selected={loadout.food} onSelect={(i) => handleSelect('food', i)} icon={Icons.Food} />
+                        </div>
+                        <div className="col-span-1 md:col-span-6 h-full flex flex-col gap-4 overflow-hidden">
+                            <div className="flex-1 min-h-0">
+                                <ItemCard title="工具" items={filteredItems.tool} selected={loadout.tool} onSelect={(i) => handleSelect('tool', i)} icon={Icons.Tool} />
+                            </div>
+                            <div className="flex-1 min-h-0 grid grid-cols-2 gap-4">
+                                <ItemCard title="裝備 I" items={filteredItems.equip1} selected={loadout.equip1} onSelect={(i) => handleSelect('equip1', i)} icon={Icons.Shield} />
+                                <ItemCard title="裝備 II" items={filteredItems.equip2} selected={loadout.equip2} onSelect={(i) => handleSelect('equip2', i)} icon={Icons.Shield} />
+                            </div>
+                        </div>
+                        <div className="col-span-1 md:col-span-3 h-full overflow-y-auto">
+                            <div className="rpg-card p-4 sticky top-0">
+                                <h3 className="text-center font-black text-[#785c3e] border-b-2 border-[#e6dbbf] pb-2 mb-4">能力加成</h3>
+                                <div className="space-y-3">
+                                    {[
+                                        { l: '生產加速', v: stats.production, c: 'text-green-600', i: Icons.Zap },
+                                        { l: '採集加速', v: stats.gathering, c: 'text-emerald-600', i: Icons.Tree },
+                                        { l: '製作加速', v: stats.crafting, c: 'text-orange-600', i: Icons.Hammer },
+                                        { l: '經驗加成', v: stats.exp, c: 'text-purple-600', i: Icons.Star },
+                                    ].map((s, idx) => (
+                                        <div key={idx} className="flex justify-between items-center bg-[#fcfaf5] p-3 rounded border border-[#f0e6d2]">
+                                            <div className="flex items-center gap-2 text-sm text-[#786c5e] font-bold"><s.i /> {s.l}</div>
+                                            <div className={`text-lg font-black ${s.v > 0 ? s.c : 'text-gray-300'}`}>{s.v > 0 ? '+' : ''}{s.v}%</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
